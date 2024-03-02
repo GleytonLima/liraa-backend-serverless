@@ -1,0 +1,375 @@
+openapi: 3.0.0
+info:
+    title: LIRAA API
+    description: API to manage LIRAA data
+    version: 1.0.0
+servers:
+    - url: https://liraa.live/v1
+x-amazon-apigateway-gateway-responses:
+  # Provide more detailed error message for bad request body errors. See doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-swagger-extensions-gateway-responses.html
+  BAD_REQUEST_BODY:
+    responseTemplates:
+      application/json: '{"errorCode": "BadRequestBody", "message": "$context.error.validationErrorString"}'
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+  DEFAULT_4XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+  DEFAULT_5XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+paths:
+    /liraa:
+        options:
+            summary: CORS support
+            description: Enable CORS by returning correct headers
+            responses:
+                "200":
+                    description: Default response for CORS method
+                    headers:
+                        Access-Control-Allow-Headers:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Methods:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Origin:
+                            schema:
+                                type: string
+                    content: {}
+            x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                    application/json: |
+                        {
+                            "statusCode" : 200
+                        }
+                responses:
+                    default:
+                        statusCode: "200"
+                        responseParameters:
+                            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                            method.response.header.Access-Control-Allow-Methods: "'*'"
+                            method.response.header.Access-Control-Allow-Origin: "'*'"
+                        responseTemplates:
+                            application/json: |
+                                {}
+        post:
+            summary: Envio dos dados do LIRAa
+            requestBody:
+                description: Dados do LIRAa
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/LIRAA"
+            responses:
+                "200":
+                    description: Dados recebido com sucesso
+                    headers:
+                        Access-Control-Allow-Headers:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Methods:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Origin:
+                            schema:
+                                type: string
+                    content: {}
+                "400":
+                    description: Dados inválidos
+                    headers:
+                        Access-Control-Allow-Headers:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Methods:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Origin:
+                            schema:
+                                type: string
+                    content: {}
+            security:
+                - EndpointAuthorizer: []
+            x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri: ${lambda_validacao_uri}
+                responses:
+                    default:
+                        statusCode: "200"
+                        responseParameters:
+                            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                            method.response.header.Access-Control-Allow-Methods: "'*'"
+                            method.response.header.Access-Control-Allow-Origin: "'*'"
+                        responseTemplates:
+                            application/json: |
+                                {}
+        get:
+            summary: Recupera os dados do LIRAa
+            parameters:
+                - name: municipio_uf
+                  in: query
+                  description: UF do estado no qual o LIRAa foi executado
+                  required: true
+                  schema:
+                    type: string
+                - name: municipio_ibge
+                  in: query
+                  description: Código IBGE do município que foi executado o LIRAa
+                  required: false
+                  schema:
+                    type: string
+                - name: view
+                  in: query
+                  description: Tipo de visão dos dados (simple ou detailed)
+                  required: false
+                  schema:
+                    type: string
+                    enum: [simple, detailed]
+                - name: limit
+                  in: query
+                  description: Número de itens a serem retornados
+                  required: false
+                  schema:
+                    type: integer
+                - name: offset
+                  in: query
+                  description: Ponto de partida para retornar os itens
+                  required: false
+                  schema:
+                    type: integer
+                - name: periodo_inicio
+                  in: query
+                  description: Data de início do período
+                  required: false
+                  schema:
+                    type: string
+                    format: date
+                - name: periodo_fim
+                  in: query
+                  description: Data de fim do período
+                  required: false
+                  schema:
+                    type: string
+                    format: date
+                - name: sort
+                  in: query
+                  description: Campo pelo qual ordenar os resultados (prefixe com '-' para ordenação descendente)
+                  required: false
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: Dados recuperados com sucesso
+                    headers:
+                        Access-Control-Allow-Headers:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Methods:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Origin:
+                            schema:
+                                type: string
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/LIRAA"
+                "400":
+                    description: Erro na recuperação dos dados
+                    headers:
+                        Access-Control-Allow-Headers:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Methods:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Origin:
+                            schema:
+                                type: string
+                    content: {}
+            security:
+                - EndpointAuthorizer: []
+            x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri: ${lambda_gerenciar_levantamentos_uri}
+                responses:
+                    default:
+                        statusCode: "200"
+                        responseParameters:
+                            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                            method.response.header.Access-Control-Allow-Methods: "'*'"
+                            method.response.header.Access-Control-Allow-Origin: "'*'"
+                        responseTemplates:
+                            application/json: |
+                                {}
+    /liraa/{id}:
+        options:
+            summary: CORS support
+            parameters:
+                - name: id
+                  in: path
+                  description: ID do levantamento a ser deletado
+                  required: true
+                  schema:
+                    type: string
+            description: Enable CORS by returning correct headers
+            responses:
+                "200":
+                    description: Default response for CORS method
+                    headers:
+                        Access-Control-Allow-Headers:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Methods:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Origin:
+                            schema:
+                                type: string
+                    content: {}
+            x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                    application/json: |
+                        {
+                            "statusCode" : 200
+                        }
+                responses:
+                    default:
+                        statusCode: "200"
+                        responseParameters:
+                            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                            method.response.header.Access-Control-Allow-Methods: "'*'"
+                            method.response.header.Access-Control-Allow-Origin: "'*'"
+                        responseTemplates:
+                            application/json: |
+                                {}
+        delete:
+            summary: Deleta um levantamento pelo ID
+            parameters:
+                - name: id
+                  in: path
+                  description: ID do levantamento a ser deletado
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    description: Levantamento deletado com sucesso
+                    headers:
+                        Access-Control-Allow-Headers:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Methods:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Origin:
+                            schema:
+                                type: string
+                    content: {}
+                "400":
+                    description: Erro ao deletar o levantamento
+                    headers:
+                        Access-Control-Allow-Headers:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Methods:
+                            schema:
+                                type: string
+                        Access-Control-Allow-Origin:
+                            schema:
+                                type: string
+                    content: {}
+            security:
+                - EndpointAuthorizer: []
+            x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri: ${lambda_gerenciar_levantamentos_uri}
+                responses:
+                    default:
+                        statusCode: "200"
+                        responseParameters:
+                            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                            method.response.header.Access-Control-Allow-Methods: "'*'"
+                            method.response.header.Access-Control-Allow-Origin: "'*'"
+                        responseTemplates:
+                            application/json: |
+                                {}
+components:
+    securitySchemes:
+        EndpointAuthorizer:
+            type: apiKey
+            name: Authorization
+            in: header
+            x-amazon-apigateway-authtype: cognito_user_pools
+            x-amazon-apigateway-authorizer:
+                type: cognito_user_pools
+                identitySource: "$request.header.Authorization"
+                providerARNs:
+                    - ${cognito_arn}
+    schemas:
+        LIRAA:
+            type: object
+            properties:
+                municipio_uf:
+                    type: string
+                municipio_nome:
+                    type: string
+                municipio_ibge:
+                    type: string
+                periodo_inicio:
+                    type: string
+                    format: date
+                periodo_fim:
+                    type: string
+                    format: date
+                dados:
+                    type: object
+                    properties:
+                        iip_aegypti:
+                            type: integer
+                        ib_aegypti:
+                            type: integer
+                        iip_albopictus:
+                            type: integer
+                        ib_albopictus:
+                            type: integer
+                        classificacoes_estrato_iip_aegypti:
+                            type: array
+                            items:
+                                type: object
+                                properties:
+                                    quantidade:
+                                        type: integer
+                                    percentual:
+                                        type: integer
+                                    risco:
+                                        type: string
+                        criadouros_aegypti:
+                            type: array
+                            items:
+                                type: object
+                                properties:
+                                    criadouro:
+                                        type: object
+                                        properties:
+                                            sigla:
+                                                type: string
+                                    quantidade:
+                                        type: integer
+            required:
+                - municipio_uf
+                - municipio_nome
+                - municipio_ibge
+                - periodo_inicio
+                - periodo_fim
+                - dados
+                - iip_aegypti
+                - ib_aegypti
+                - iip_albopictus
+                - ib_albopictus

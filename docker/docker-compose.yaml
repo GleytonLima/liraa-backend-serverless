@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb_instance
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ""
+      MONGO_INITDB_ROOT_PASSWORD: ""
+      MONGO_INITDB_DATABASE: liraa
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./init-mongo-db-with-collections.js:/docker-entrypoint-initdb.d/init-mongo-db-with-collections.js:ro
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
