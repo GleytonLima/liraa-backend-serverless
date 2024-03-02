@@ -20,6 +20,7 @@ Para o banco de dados, foi utilizado o MongoDB, que foi hospedado no MongoDB Atl
 
 Para testar o projeto, é necessário ter o Node.js instalado na máquina. Após clonar o repositório, basta executar o comando `npm install` para instalar as dependências do projeto. Em seguida, acesse a pasta `lambda` e execute o comando `npm run test` para rodar os testes.
 
+
 ## Implantação manual
 
 Neste projeto utilizamos o terraform para a implantação dos recursos na AWS. Para implantar manualmente, é necessário ter o terraform instalado na máquina. Além disso, é necessário configurar
