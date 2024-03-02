@@ -38,3 +38,9 @@ export TF_VAR_google_client_secret=seu cliente secret criado via console do goog
 
  Após isso, acesse a pasta `terraform` e executar o comando `terraform init` para inicializar o terraform. Em seguida, execute o comando `terraform apply` para implantar os recursos na AWS.
 
+
+## Github Actions
+
+- https://github.com/aws-actions/configure-aws-credentials
+
+- https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services

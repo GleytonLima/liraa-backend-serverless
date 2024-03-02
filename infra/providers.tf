@@ -1,7 +1,10 @@
-#terraform {
-#  backend "s3" {
-
-# }
+terraform {
+  backend "s3" {
+    bucket = "liraa-github-deploy"
+    key    = "terraform.tfstate"
+    region = "us-east-1"
+  }
+}
 #}
 /* provider "aws" {
   access_key                  = "test"

@@ -1,0 +1,60 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: cd lambda && npm ci
+
+    - name: Run tests
+      run: cd lambda && npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.1.7"
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        role-to-assume: arn:aws:iam::691355753278:role/liraa-github-deploy-role
+
+    - name: Terraform Init
+      run: cd infra && terraform init
+
+    - name: Terraform Apply
+      env:
+        TF_VAR_mongodb_username: ${{ secrets.MONGODB_USERNAME }}
+        TF_VAR_mongodb_password: ${{ secrets.MONGODB_PASSWORD }}
+        TF_VAR_mongodb_cluster: ${{ secrets.MONGODB_CLUSTER }}
+        TF_VAR_google_client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
+        TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      run: cd infra && terraform apply -auto-approve
