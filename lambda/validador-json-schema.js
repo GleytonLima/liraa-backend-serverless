@@ -38,20 +38,16 @@ const schemaLiraa = {
             type: 'object',
             properties: {
                 iip_aegypti: {
-                    type: 'integer',
-                    format: 'int32',
+                    type: 'number'
                 },
                 ib_aegypti: {
-                    type: 'integer',
-                    format: 'int32',
+                    type: 'number'
                 },
                 iip_albopictus: {
-                    type: 'integer',
-                    format: 'int32',
+                    type: 'number',
                 },
                 ib_albopictus: {
-                    type: 'integer',
-                    format: 'int32',
+                    type: 'number',
                 },
                 classificacoes_estrato_iip_aegypti: {
                     type: 'array',
@@ -63,8 +59,7 @@ const schemaLiraa = {
                                 format: 'int32',
                             },
                             percentual: {
-                                type: 'integer',
-                                format: 'int32',
+                                type: 'number'
                             },
                             risco: {
                                 type: 'string',
